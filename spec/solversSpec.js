@@ -47,7 +47,7 @@ describe('solvers', function() {
 
         expect(solutionBoard.get('n')).to.equal(n);
         expect(numPieces).to.equal(n);
-    //    expect(solutionBoard.hasAnyQueensConflicts()).to.be.equal(false);
+        expect(solutionBoard.hasAnyQueensConflicts()).to.be.equal(false);
       });
 
       // Check 2 and 3 for no solution
@@ -59,8 +59,8 @@ describe('solvers', function() {
           }, 0);
         }, 0);
 
-    //    expect(numPieces).to.equal(0);
-    //    expect(solutionBoard.get('n')).to.equal(n);
+        expect(numPieces).to.equal(0);
+        expect(solutionBoard.get('n')).to.equal(n);
       });
     });
 
