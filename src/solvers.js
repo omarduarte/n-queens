@@ -14,7 +14,6 @@
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 window.findNRooksSolution = function(n) {
   //create empty n x n matrix
-
   var board = new Board({'n': n});
   for (var i = 0; i < n; i++) {
     for (var j = 0; j < n; j++) {
@@ -33,7 +32,6 @@ window.findNRooksSolution = function(n) {
     matrix.push(board.get(i));
   }
   var solution = matrix; //fixme
-
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
@@ -73,7 +71,6 @@ window.findNQueensSolution = function(n) {
     for (var i = 0; i < n; i++) {
       matrix.push(board.get(i));
     }
-
     console.log('Single solution for ' + n + ' queens:', JSON.stringify(matrix));
     return matrix;
   };
@@ -82,7 +79,7 @@ window.findNQueensSolution = function(n) {
     var result = null;
     //Base case
     if (rowIndex === n) {
-      return makeSolution();
+      return makeSolution(); //if we find a solution
     }
     //create a new row from rowIndex taken from the board instance
     var currentRow = board.get(rowIndex);
@@ -98,14 +95,14 @@ window.findNQueensSolution = function(n) {
         board.set(rowIndex, currentRow);
         continue;
       } else {
-        //recurse into to next row. Pass next rowIndex and counter++
+        //recurse into to next row. Pass next rowIndex
         var result = recursion(rowIndex + 1);
-
+        // if result's recursion passes the base condition
         if (result) {
-          return result;
+          return result; //return the solution
         } else {
-          currentRow[col] = 0;
-          board.set(rowIndex, currentRow);
+          currentRow[col] = 0; //reset the currentCol's value to 0
+          board.set(rowIndex, currentRow); //reset the board
         }
       }
     }
@@ -113,7 +110,7 @@ window.findNQueensSolution = function(n) {
     return result;
   };
 
-  return recursion(0);
+  return recursion(0); //call it
 };
 
 
