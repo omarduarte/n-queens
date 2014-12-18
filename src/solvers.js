@@ -53,39 +53,61 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
+  if (n === 1) {
+    return {'n': n };
+  }
+  if (n === 0 || n === 2 || n === 3) {
+    return {'n': n };
+  }
   var board = new Board({'n': n});
-  var counter = 0;
-  var recursion = function (rowIndex) {
-    //Base case
-    if (counter === n) {
-      return makeSolution();
-    }
-    //create a new row from rowIndex taken from the board instance
-    //iterate through each row
-      //insert a 1 at column and check for conflicts, increase counter
-      //if any conflicts, remove from column and go to next column
-      //if no conflicts, jump to next row and recursively call and counter++
-
-
-
-
-
-  };
-
-
-
-
-
 
   var makeSolution = function() {
     var matrix = [];
+
     for (var i = 0; i < n; i++) {
       matrix.push(board.get(i));
     }
-    var solution = matrix; //fixme
-    console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-    return solution;
+
+    console.log('Single solution for ' + n + ' queens:', JSON.stringify(matrix));
+    return matrix;
   };
+
+  var recursion = function (rowIndex) {
+    var result = null;
+    //Base case
+    if (rowIndex === n) {
+      return makeSolution();
+    }
+    //create a new row from rowIndex taken from the board instance
+    var currentRow = board.get(rowIndex);
+    //iterate through each row
+    for (var col = 0; col < currentRow.length; col++) {
+      //insert a 1 at column and check for conflicts, increase counter
+      currentRow[col] = 1;
+      board.set(rowIndex, currentRow);
+      //if any conflicts,
+      if (board.hasAnyQueensConflicts()) {
+        //restore column and go to next column
+        currentRow[col] = 0;
+        board.set(rowIndex, currentRow);
+        continue;
+      } else {
+        //recurse into to next row. Pass next rowIndex and counter++
+        var result = recursion(rowIndex + 1);
+
+        if (result) {
+          return result;
+        } else {
+          currentRow[col] = 0;
+          board.set(rowIndex, currentRow);
+        }
+      }
+    }
+    // Only if result === null;
+    return result;
+  };
+
+  return recursion(0);
 };
 
 
