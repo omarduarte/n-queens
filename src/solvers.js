@@ -18,21 +18,14 @@ window.findNRooksSolution = function (n) {
 
   for (var row = 0; row < n; row++) {
     for (var col = 0; col < n; col++) {
-      var currentRow = board.get(row); //select the current row during the iteration
-      currentRow[col] = 1; //set column j in current row to 1
-      board.set(row, currentRow); //push this to the board
+      board.togglePiece(row, col); //Change (row,col) to 1
       if (board.hasAnyRooksConflicts()) { //if it fails
-        currentRow[col] = 0; //reset to 0
-        board.set(row, currentRow); //reset board at the row with the reset Column value
+        board.togglePiece(row, col); //Change (row,col) to 0
       }
     }
   }
 
-  var matrix = [];
-  for (var row  = 0; row < n; row++) {
-    matrix.push(board.get(row));
-  }
-
+  var matrix = board.rows();
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(matrix));
   return matrix;
 };
@@ -73,84 +66,64 @@ window.findNQueensSolution = function (n) {
   }
   var board = new Board({'n': n});
 
-  var makeSolution = function() {
-    var matrix = [];
-
-    for (var i = 0; i < n; i++) {
-      matrix.push(board.get(i));
-    }
-
-    console.log('Single solution for ' + n + ' queens:', JSON.stringify(matrix));
-    return matrix;
-  };
-
-  var recursion = function (rowIndex) {
+  var traverseBoard = function (rowIndex) {
     var result = null;
     //Base case
     if (rowIndex === n) {
-      return makeSolution(); //if we find a solution
+      return board.rows(); //if we find a solution
     }
 
     var currentRow = board.get(rowIndex); //create a new row from rowIndex taken from the board instance
     //iterate through each column
     for (var col = 0; col < currentRow.length; col++) {
-      currentRow[col] = 1; //insert a 1 at column
-      board.set(rowIndex, currentRow); //update the board
+      board.togglePiece(rowIndex, col); //insert a 1 at (rowIndex, col)
 
       if (board.hasAnyQueensConflicts()) { //if any conflicts,
-        currentRow[col] = 0; //restore column
-        board.set(rowIndex, currentRow); //reset the board
+        board.togglePiece(rowIndex, col); //insert a 0 at (rowIndex, col)
         continue; //go to next column
 
       } else {
-        result = recursion(rowIndex + 1); //recurse into to next row
+        result = traverseBoard(rowIndex + 1); //recurse into to next row
 
         if (result) { // if result's recursion passes the base condition
           return result; //return the solution
-
         } else {
-          currentRow[col] = 0; //reset the currentCol's value to 0
-          board.set(rowIndex, currentRow); //reset the board
+          board.togglePiece(rowIndex, col); //insert a 0 at (rowIndex, col)
         }
       }
     }
-
     return result; // Only if result === null;
   };
 
-  return recursion(0); //call it
+  return traverseBoard(0); //call it
 };
 
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function (n) {
-  var counter = 0;
+  var solutionCount = 0;
   var board = new Board({'n': n});
 
-  var recursion = function (rowIndex) {
+  var countQueenSolutions = function (rowIndex) {
     //Base case
     if (rowIndex === n) {
-      counter++;
+      solutionCount++;
       return;
     }
 
-    var currentRow = board.get(rowIndex); //set current row to the current row passed in recursively
-    for (var col = 0; col < currentRow.length; col++) {
-      currentRow[col] = 1;
-      board.set(rowIndex, currentRow);
+    for (var col = 0; col < n; col++) {
+      board.togglePiece(rowIndex, col);
       if (board.hasAnyQueensConflicts()) {
-        currentRow[col] = 0;
-        board.set(rowIndex, currentRow);
+        board.togglePiece(rowIndex, col);
         continue;
       } else {
-        recursion(rowIndex + 1);
-        currentRow[col] = 0;
-        board.set(rowIndex, currentRow);
+        countQueenSolutions(rowIndex + 1);
+        board.togglePiece(rowIndex, col);
       }
     }
   };
-  recursion(0);
-  var solutionCount = counter; //fixme
+
+  countQueenSolutions(0);
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
