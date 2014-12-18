@@ -41,7 +41,15 @@ window.findNRooksSolution = function (n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function (n) {
-  var solutionCount = undefined; //fixme
+
+  var factorial = function (n) {
+    if (n === 0) {
+      return 1;
+    }
+    return n * factorial(n-1);
+  };
+
+  var solutionCount = factorial(n); //fixme
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
@@ -84,20 +92,22 @@ window.findNQueensSolution = function (n) {
     }
 
     var currentRow = board.get(rowIndex); //create a new row from rowIndex taken from the board instance
-    //iterate through each row
+    //iterate through each column
     for (var col = 0; col < currentRow.length; col++) {
-      currentRow[col] = 1; //insert a 1 at column and check for conflicts, increase counter
+      currentRow[col] = 1; //insert a 1 at column
       board.set(rowIndex, currentRow); //update the board
 
       if (board.hasAnyQueensConflicts()) { //if any conflicts,
         currentRow[col] = 0; //restore column
         board.set(rowIndex, currentRow); //reset the board
         continue; //go to next column
+
       } else {
-        var result = recursion(rowIndex + 1); //recurse into to next row. Pass next rowIndex
+        result = recursion(rowIndex + 1); //recurse into to next row
 
         if (result) { // if result's recursion passes the base condition
           return result; //return the solution
+
         } else {
           currentRow[col] = 0; //reset the currentCol's value to 0
           board.set(rowIndex, currentRow); //reset the board
@@ -114,7 +124,33 @@ window.findNQueensSolution = function (n) {
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function (n) {
-  var solutionCount = undefined; //fixme
+  var counter = 0;
+  var board = new Board({'n': n});
+
+  var recursion = function (rowIndex) {
+    //Base case
+    if (rowIndex === n) {
+      counter++;
+      return;
+    }
+
+    var currentRow = board.get(rowIndex); //set current row to the current row passed in recursively
+    for (var col = 0; col < currentRow.length; col++) {
+      currentRow[col] = 1;
+      board.set(rowIndex, currentRow);
+      if (board.hasAnyQueensConflicts()) {
+        currentRow[col] = 0;
+        board.set(rowIndex, currentRow);
+        continue;
+      } else {
+        recursion(rowIndex + 1);
+        currentRow[col] = 0;
+        board.set(rowIndex, currentRow);
+      }
+    }
+  };
+  recursion(0);
+  var solutionCount = counter; //fixme
 
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
