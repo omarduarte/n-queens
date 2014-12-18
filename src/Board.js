@@ -1,4 +1,4 @@
-// This file is a Backbone Model (don't worry about what that means)
+ // This file is a Backbone Model (don't worry about what that means)
 // It's part of the Board Visualizer
 // The only portions you need to work on are the helper functions (below)
 
@@ -39,6 +39,10 @@
 
     hasAnyRooksConflicts: function() {
       return this.hasAnyRowConflicts() || this.hasAnyColConflicts();
+    },
+
+    hasAnyRooksConflictsOn: function(rowIndex, colIndex) {
+      return (this.hasRowConflictAt(rowIndex) || this.hasColConflictAt(colIndex));
     },
 
     hasAnyQueenConflictsOn: function(rowIndex, colIndex) {
@@ -146,32 +150,48 @@
     // --------------------------------------------------------------
     //
     // test if a specific major diagonal on this board contains a conflict
-    hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow, row) {
-      var row = row || 0;
-      var column = majorDiagonalColumnIndexAtFirstRow;
-      var counter = this.get(row)[column];
+    hasMajorDiagonalConflictAt: function(projectedColIndexAtRow0) {
+      // If the projected Column is less than the first column index
+      // we need to set the starting rowIndex and colIndex in a position where the diagonal covers at least 2 elements
+      var rowIndex = (projectedColIndexAtRow0 >= 0) ? 0 : -projectedColIndexAtRow0;
+      var colIndex = (projectedColIndexAtRow0 >= 0) ? projectedColIndexAtRow0 : 0;
+
+      var counter = 0;
       var size = this.get('n');
 
-      for (var i = row + 1; i < size && column < size; i++) {
-        counter += this.get(i)[++column];
+      while (rowIndex < size && colIndex < size) {
+        counter += this.get(rowIndex)[colIndex];
         if (counter > 1) {
           return true;
         }
+        rowIndex++;
+        colIndex++;
       }
-      return false; // fixme
+      return false;
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
       var size = this.get('n');
-      for (var i = 0; i < size-1; i++) {
-        for (var j = 0; j < size; j++) {
-          if (this.hasMajorDiagonalConflictAt(j, i)) {
-            return true;
-          }
+
+      /*
+       *  The colIndex is set to 2 - size (size === n) because we need to begin left
+       *  of the first column so that hasMajorDiagonalConflictAt() can cover the entire board
+       *
+       * projected     4x4 board
+       * colIndex -2-1  0 1 2 3
+       *        |_|P|_||_|_|_|_|
+       *        |_|_|P||_|_|_|_|
+       *        |_|_|_||X|_|_|_|
+       *        |_|_|_||_|X|_|_|
+       */
+
+      for (var colIndex = 2 - size; colIndex < size; colIndex++) {
+        if (this.hasMajorDiagonalConflictAt(colIndex)) {
+          return true;
         }
       }
-      return false; // fixme
+      return false;
     },
 
 
@@ -180,32 +200,47 @@
     // --------------------------------------------------------------
     //
     // test if a specific minor diagonal on this board contains a conflict
-    hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow, row) {
-      var row = row || 0;
-      var column = minorDiagonalColumnIndexAtFirstRow;
-      var counter = this.get(row)[column];
+    hasMinorDiagonalConflictAt: function(projectedColIndexAtRow0) {
       var size = this.get('n');
+      // If the projected Column exceeds the size of the matrix
+      // we need to set the starting rowIndex and colIndex in a position where the diagonal covers at least 2 elements
+      var rowIndex = (projectedColIndexAtRow0 >= size) ? projectedColIndexAtRow0 - size + 1 : 0;
+      var colIndex = (projectedColIndexAtRow0 >= size) ? size - 1 : projectedColIndexAtRow0;
+      var counter = 0;
 
-      for (var i = row + 1; i < size && column >= 0; i++) {
-        counter += this.get(i)[--column];
+      while (rowIndex < size && colIndex >= 0) {
+        counter += this.get(rowIndex)[colIndex];
         if (counter > 1) {
           return true;
         }
+        rowIndex++;
+        colIndex--;
       }
-      return false; // fixme
+      return false;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
+
+      /*
+       *  The colIndex is set to 2*size - 3 (size === n) because we need to begin right
+       *  of the last column so that hasMinorDiagonalConflictAt() can cover the entire board
+       *
+       *         4x4 board Projected
+       * colIndex 0 1 2 3  4 5 6
+       *         |_|_|_|_||_|P|_|
+       *         |_|_|_|_||P|_|_|
+       *         |_|_|_|X||_|_|_|
+       *         |_|_|X|_||_|_|_|
+       */
+
       var size = this.get('n');
-      for (var i = 0; i < size-1; i++) {
-        for (var j = 0; j < size; j++) {
-          if (this.hasMinorDiagonalConflictAt(j, i)) {
-            return true;
-          }
+      for (var colIndex = 2*size - 3; colIndex >= 0; colIndex--) {
+        if (this.hasMinorDiagonalConflictAt(colIndex)) {
+          return true;
         }
       }
-      return false; // fixme
+      return false;
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/

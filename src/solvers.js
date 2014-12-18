@@ -16,11 +16,13 @@ window.findNRooksSolution = function (n) {
   //create empty n x n matrix
   var board = new Board({'n': n});
 
-  for (var row = 0; row < n; row++) {
-    for (var col = 0; col < n; col++) {
-      board.togglePiece(row, col); //Change (row,col) to 1
-      if (board.hasAnyRooksConflicts()) { //if it fails
-        board.togglePiece(row, col); //Change (row,col) to 0
+  for (var rowIndex = 0; rowIndex < n; rowIndex++) {
+    for (var colIndex = 0; colIndex < n; colIndex++) {
+      board.togglePiece(rowIndex , colIndex); //Change (rowIndex ,colIndex) to 1
+      if (board.hasAnyRooksConflictsOn(rowIndex, colIndex)) { //if it fails
+        board.togglePiece(rowIndex , colIndex); //Change (row,colIndex) to 0
+      } else {
+        break;
       }
     }
   }
@@ -73,13 +75,12 @@ window.findNQueensSolution = function (n) {
       return board.rows(); //if we find a solution
     }
 
-    var currentRow = board.get(rowIndex); //create a new row from rowIndex taken from the board instance
     //iterate through each column
-    for (var col = 0; col < currentRow.length; col++) {
-      board.togglePiece(rowIndex, col); //insert a 1 at (rowIndex, col)
+    for (var colIndex = 0; colIndex < n; colIndex++) {
+      board.togglePiece(rowIndex, colIndex); //insert a 1 at (rowIndex, colIndex)
 
-      if (board.hasAnyQueensConflicts()) { //if any conflicts,
-        board.togglePiece(rowIndex, col); //insert a 0 at (rowIndex, col)
+      if (board.hasAnyQueenConflictsOn(rowIndex, colIndex)) { //if any conflicts,
+        board.togglePiece(rowIndex, colIndex); //insert a 0 at (rowIndex, colIndex)
         continue; //go to next column
 
       } else {
@@ -88,7 +89,7 @@ window.findNQueensSolution = function (n) {
         if (result) { // if result's recursion passes the base condition
           return result; //return the solution
         } else {
-          board.togglePiece(rowIndex, col); //insert a 0 at (rowIndex, col)
+          board.togglePiece(rowIndex, colIndex); //insert a 0 at (rowIndex, colindex)
         }
       }
     }
@@ -111,14 +112,14 @@ window.countNQueensSolutions = function (n) {
       return;
     }
 
-    for (var col = 0; col < n; col++) {
-      board.togglePiece(rowIndex, col);
-      if (board.hasAnyQueensConflicts()) {
-        board.togglePiece(rowIndex, col);
+    for (var colIndex = 0; colIndex < n; colIndex++) {
+      board.togglePiece(rowIndex, colIndex);
+      if (board.hasAnyQueenConflictsOn(rowIndex, colIndex)) {
+        board.togglePiece(rowIndex, colIndex);
         continue;
       } else {
         countQueenSolutions(rowIndex + 1);
-        board.togglePiece(rowIndex, col);
+        board.togglePiece(rowIndex, colIndex);
       }
     }
   };
